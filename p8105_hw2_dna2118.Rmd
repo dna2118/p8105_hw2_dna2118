@@ -9,12 +9,50 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
-## First we will clean the data
+## Question 1
+
+### First we will clean the data Mr. Trash Wheel Data
 ```{r}
 Healthy_Harbor = 
   readxl::read_excel("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
   sheet = "Mr. Trash Wheel") %>% 
   janitor::clean_names() %>% 
-  select(-x15) %>% 
-  na.omit(Healthy_Harbor) 
+  select(-x15, -x16, -x17) %>% 
+  drop_na(dumpster) %>% 
+  mutate(
+    sports_balls = 
+    as.integer(round(sports_balls, digit = 0)))
 ```
+### Now, we will read and clean the 2017 precipitation data 
+```{r}
+Precip2017 = 
+  readxl::read_excel("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+  sheet = "2017 Precipitation",  
+  range = "A2:B14") %>% 
+  janitor::clean_names() %>% 
+  drop_na(total) %>% 
+  mutate(
+    Year = 2017
+  )
+```
+### Now, we will read and clean the 2018 precipitation data 
+```{r}
+Precip2018 = 
+  readxl::read_excel("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+  sheet = "2018 Precipitation",
+  range="A2:B14") %>% 
+  janitor::clean_names() %>% 
+  drop_na(total) %>% 
+  mutate(
+    Year = 2018
+  )
+```
+### Now, we will combine the 2017 and 2018 precipitation datasets 
+```{r}
+Precip_Total = 
+  full_join(Precip2017, Precip2018) %>% 
+  janitor::clean_names() %>% 
+  mutate(month=month.name[month])
+```
+### Summarizing the Data
+The number of observations in the Healthy Harbor dataset is `r nrow(Healthy_Harbor)`. The number of observations in the joined 2017 and 2018 Precipitation dataset is `r nrow(Precip_Total)`. The total preciptation in 2018 was `r sum(pull(Precip2018,total))`. The median number of sports balls is `r median(pull(Healthy_Harbor, sports_balls))`. Some key variables that were present in both datasets include month and year. 

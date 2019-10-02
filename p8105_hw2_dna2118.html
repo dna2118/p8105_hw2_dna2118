@@ -369,18 +369,60 @@ summary {
 </div>
 
 
-<div id="first-we-will-clean-the-data" class="section level2">
-<h2>First we will clean the data</h2>
+<div id="question-1" class="section level2">
+<h2>Question 1</h2>
+<div id="first-we-will-clean-the-data-mr.trash-wheel-data" class="section level3">
+<h3>First we will clean the data Mr. Trash Wheel Data</h3>
 <pre class="r"><code>Healthy_Harbor = 
   readxl::read_excel(&quot;./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx&quot;,
   sheet = &quot;Mr. Trash Wheel&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
-  select(-x15) %&gt;% 
-  na.omit(Healthy_Harbor) </code></pre>
+  select(-x15, -x16, -x17) %&gt;% 
+  drop_na(dumpster) %&gt;% 
+  mutate(
+    sports_balls = 
+    as.integer(round(sports_balls, digit = 0)))</code></pre>
 <pre><code>## New names:
 ## * `` -&gt; ...15
 ## * `` -&gt; ...16
 ## * `` -&gt; ...17</code></pre>
+</div>
+<div id="now-we-will-read-and-clean-the-2017-precipitation-data" class="section level3">
+<h3>Now, we will read and clean the 2017 precipitation data</h3>
+<pre class="r"><code>Precip2017 = 
+  readxl::read_excel(&quot;./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx&quot;,
+  sheet = &quot;2017 Precipitation&quot;,  
+  range = &quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  drop_na(total) %&gt;% 
+  mutate(
+    Year = 2017
+  )</code></pre>
+</div>
+<div id="now-we-will-read-and-clean-the-2018-precipitation-data" class="section level3">
+<h3>Now, we will read and clean the 2018 precipitation data</h3>
+<pre class="r"><code>Precip2018 = 
+  readxl::read_excel(&quot;./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx&quot;,
+  sheet = &quot;2018 Precipitation&quot;,
+  range=&quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  drop_na(total) %&gt;% 
+  mutate(
+    Year = 2018
+  )</code></pre>
+</div>
+<div id="now-we-will-combine-the-2017-and-2018-precipitation-datasets" class="section level3">
+<h3>Now, we will combine the 2017 and 2018 precipitation datasets</h3>
+<pre class="r"><code>Precip_Total = 
+  full_join(Precip2017, Precip2018) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(month=month.name[month])</code></pre>
+<pre><code>## Joining, by = c(&quot;month&quot;, &quot;total&quot;, &quot;Year&quot;)</code></pre>
+</div>
+<div id="summarizing-the-data" class="section level3">
+<h3>Summarizing the Data</h3>
+<p>The number of observations in the Healthy Harbor dataset is 344. The number of observations in the joined 2017 and 2018 Precipitation dataset is 24. The total preciptation in 2018 was 70.33. The median number of sports balls is 8. Some key variables that were present in both datasets include month and year.</p>
+</div>
 </div>
 
 
