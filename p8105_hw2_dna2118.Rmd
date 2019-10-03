@@ -55,4 +55,54 @@ Precip_Total =
   mutate(month=month.name[month])
 ```
 ### Summarizing the Data
-The number of observations in the Healthy Harbor dataset is `r nrow(Healthy_Harbor)`. The number of observations in the joined 2017 and 2018 Precipitation dataset is `r nrow(Precip_Total)`. The total preciptation in 2018 was `r sum(pull(Precip2018,total))`. The median number of sports balls is `r median(pull(Healthy_Harbor, sports_balls))`. Some key variables that were present in both datasets include month and year. 
+The total number of observations in the Healthy Harbor dataset is `r nrow(Healthy_Harbor)`. The number of observations in the joined 2017 and 2018 precipitation data is `r nrow(Precip_Total)`. The total preciptation in 2018 was `r sum(pull(Precip2018,total))`. The median number of sports balls in a dumpster from 2017 `r median(pull(filter(Healthy_Harbor, year==2017), sports_balls))`. Some key variables that were present in both datasets include total, month and year. 
+
+## Question 2
+```{r}
+pols_month = 
+  read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(mon, into = c("year", "month", "day"),
+  convert = TRUE) %>% 
+  mutate(month=month.name[month]) %>% 
+  mutate(prez_dem=recode(prez_dem, "1" = "dem")) %>% 
+  mutate(prez_gop=recode(prez_gop, "1" = "gop")) %>% 
+  pivot_longer(c("prez_dem","prez_gop"),
+    values_to = "president",
+    values_drop_na = TRUE) %>% 
+    select(-day)
+```
+
+```{r}
+snp_data = 
+  read_csv("./data/fivethirtyeight_datasets/snp.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(date, into= c("month","day","year"),
+  convert = TRUE) %>% 
+  select(year, month, -day, close) %>% 
+  mutate(month=month.name[month])
+```
+
+```{r}
+unemployment_data = 
+  read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>% 
+  pivot_longer(
+    Jan:Dec,
+    names_to = "month", 
+    values_to = "rate") %>% 
+    mutate(month=match(month, month.abb)) %>% 
+    mutate(month=month.name[month])  %>% 
+    mutate(Year = as.integer(Year)) %>% 
+    janitor::clean_names()
+```
+
+```{r}
+P2_joined_data = 
+  pols_month %>% 
+  left_join(snp_data, 
+    by=c("year", "month")) %>%   
+  left_join(unemployment_data,
+    by=c("year", "month"))
+```
+### Summarizing the data
+The data pols_month contains 817 observations of 10 variables related to the number of national politicians who are democratic or republican at any given time. The file “unemployment” contains 816 observations of 4 variables that describe the percentage of unemployment in each month of the associated year.The file snp contains 787 observations of 3 variables related to Standard & Poor’s stock market index (S&P), often used as a representative measure of stock market as a whole. The key variables used are year and month.

@@ -421,7 +421,87 @@ summary {
 </div>
 <div id="summarizing-the-data" class="section level3">
 <h3>Summarizing the Data</h3>
-<p>The number of observations in the Healthy Harbor dataset is 344. The number of observations in the joined 2017 and 2018 Precipitation dataset is 24. The total preciptation in 2018 was 70.33. The median number of sports balls is 8. Some key variables that were present in both datasets include month and year.</p>
+<p>The total number of observations in the Healthy Harbor dataset is 344. The number of observations in the joined 2017 and 2018 precipitation data is 24. The total preciptation in 2018 was 70.33. The median number of sports balls in a dumpster from 2017 8. Some key variables that were present in both datasets include total, month and year.</p>
+</div>
+</div>
+<div id="question-2" class="section level2">
+<h2>Question 2</h2>
+<pre class="r"><code>pols_month = 
+  read_csv(&quot;./data/fivethirtyeight_datasets/pols-month.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  separate(mon, into = c(&quot;year&quot;, &quot;month&quot;, &quot;day&quot;),
+  convert = TRUE) %&gt;% 
+  mutate(month=month.name[month]) %&gt;% 
+  mutate(prez_dem=recode(prez_dem, &quot;1&quot; = &quot;dem&quot;)) %&gt;% 
+  mutate(prez_gop=recode(prez_gop, &quot;1&quot; = &quot;gop&quot;)) %&gt;% 
+  pivot_longer(c(&quot;prez_dem&quot;,&quot;prez_gop&quot;),
+    values_to = &quot;president&quot;,
+    values_drop_na = TRUE) %&gt;% 
+    select(-day)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   mon = col_date(format = &quot;&quot;),
+##   prez_gop = col_double(),
+##   gov_gop = col_double(),
+##   sen_gop = col_double(),
+##   rep_gop = col_double(),
+##   prez_dem = col_double(),
+##   gov_dem = col_double(),
+##   sen_dem = col_double(),
+##   rep_dem = col_double()
+## )</code></pre>
+<pre><code>## Warning: Unreplaced values treated as NA as .x is not compatible. Please
+## specify replacements exhaustively or supply .default
+
+## Warning: Unreplaced values treated as NA as .x is not compatible. Please
+## specify replacements exhaustively or supply .default</code></pre>
+<pre class="r"><code>snp_data = 
+  read_csv(&quot;./data/fivethirtyeight_datasets/snp.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  separate(date, into= c(&quot;month&quot;,&quot;day&quot;,&quot;year&quot;),
+  convert = TRUE) %&gt;% 
+  select(year, month, -day, close) %&gt;% 
+  mutate(month=month.name[month])</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   date = col_character(),
+##   close = col_double()
+## )</code></pre>
+<pre class="r"><code>unemployment_data = 
+  read_csv(&quot;./data/fivethirtyeight_datasets/unemployment.csv&quot;) %&gt;% 
+  pivot_longer(
+    Jan:Dec,
+    names_to = &quot;month&quot;, 
+    values_to = &quot;rate&quot;) %&gt;% 
+    mutate(month=match(month, month.abb)) %&gt;% 
+    mutate(month=month.name[month])  %&gt;% 
+    mutate(Year = as.integer(Year)) %&gt;% 
+    janitor::clean_names()</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   Year = col_double(),
+##   Jan = col_double(),
+##   Feb = col_double(),
+##   Mar = col_double(),
+##   Apr = col_double(),
+##   May = col_double(),
+##   Jun = col_double(),
+##   Jul = col_double(),
+##   Aug = col_double(),
+##   Sep = col_double(),
+##   Oct = col_double(),
+##   Nov = col_double(),
+##   Dec = col_double()
+## )</code></pre>
+<pre class="r"><code>P2_joined_data = 
+  pols_month %&gt;% 
+  left_join(snp_data, 
+    by=c(&quot;year&quot;, &quot;month&quot;)) %&gt;%   
+  left_join(unemployment_data,
+    by=c(&quot;year&quot;, &quot;month&quot;))</code></pre>
+<div id="summarizing-the-data-1" class="section level3">
+<h3>Summarizing the data</h3>
+<p>The data pols_month contains 817 observations of 10 variables related to the number of national politicians who are democratic or republican at any given time. The file “unemployment” contains 816 observations of 4 variables that describe the percentage of unemployment in each month of the associated year.The file snp contains 787 observations of 3 variables related to Standard &amp; Poor’s stock market index (S&amp;P), often used as a representative measure of stock market as a whole. The key variables used are year and month.</p>
 </div>
 </div>
 
