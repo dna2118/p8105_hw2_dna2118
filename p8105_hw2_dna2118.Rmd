@@ -2,7 +2,7 @@
 title: "p8105_hw2_dna2118"
 author: "Dionna Attinson"
 date: "9/30/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
